@@ -93,4 +93,81 @@ router.delete('/posts/:postId', async (req, res, next) => {
 	}
 });
 
+router.get('/posts/:postId/comments', async (req, res, next) => {
+	try {
+		const comments = await Comment.find({ post: req.params.postId })
+			.sort({ timestamp: -1 })
+			.exec();
+
+		res.json(comments);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+router.post('/posts/:postId/comments', async (req, res, next) => {
+	try {
+		const comment = new Comment({
+			username: req.body.username,
+			comment: req.body.comment,
+			post: req.params.postId,
+			timestamp: Date.now(),
+		});
+
+		await comment.save();
+		res.status(201).json({ success: true, comment });
+	} catch (err) {
+		return next(err);
+	}
+});
+
+router.get('/posts/:postId/comments/:commentId', async (req, res, next) => {
+	try {
+		const comment = await Comment.findOne({
+			post: req.params.postId,
+			_id: req.params.commentId,
+		}).exec();
+
+		res.json(comment);
+	} catch (err) {
+		return next(err);
+	}
+});
+
+router.put('/posts/:postId/comments/:commentId', async (req, res, next) => {
+	try {
+		const comment = await Comment.findById(req.params.commentId);
+
+		const newComment = new Comment({
+			username: req.body.username || comment.username,
+			comment: req.body.comment || comment.comment,
+			post: req.params.postId,
+			timestamp: comment.timestamp,
+			_id: req.params.commentId,
+		});
+
+		const updatedComment = await Comment.findByIdAndUpdate(
+			req.params.commentId,
+			newComment,
+			{ new: true }
+		);
+
+		res.json({ success: true, updatedComment });
+	} catch (err) {
+		return next(err);
+	}
+});
+
+router.delete('/posts/:postId/comments/:commentId', async (req, res, next) => {
+	try {
+		const deletedComment = await Comment.findByIdAndDelete(
+			req.params.commentId
+		);
+
+		res.json({ success: true, deletedComment });
+	} catch (err) {
+		return next(err);
+	}
+});
+
 module.exports = router;
