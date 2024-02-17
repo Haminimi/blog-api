@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { body, validationResult } = require('express-validator');
 const Post = require('../models/post');
 const Comment = require('../models/comment');
 
@@ -17,34 +18,48 @@ router.get('/posts', async (req, res, next) => {
 	}
 });
 
-router.post('/posts', async (req, res, next) => {
-	try {
-		let post;
-		if (req.body.published) {
-			post = new Post({
-				user: req.body.user,
-				title: req.body.title,
-				post: req.body.post,
-				published: req.body.publish,
-				createdAt: Date.now(),
-				publishedAt: Date.now(),
-			});
-		} else {
-			post = new Post({
-				user: req.body.user,
-				title: req.body.title,
-				post: req.body.post,
-				published: req.body.publish,
-				createdAt: Date.now(),
-			});
-		}
+router.post(
+	'/posts',
+	[
+		body('author', 'Author must not be empty.').trim().isLength({ min: 1 }),
+		body('title', 'Title must not be empty.').trim().isLength({ min: 1 }),
+		body('post', 'Post must not be empty.').trim().isLength({ min: 1 }),
+	],
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
 
-		await post.save();
-		res.status(201).json({ success: true, post });
-	} catch (err) {
-		return next(err);
+			if (!errors.isEmpty()) {
+				res.json({ errors: errors.array() });
+			} else {
+				let post;
+				if (req.body.published) {
+					post = new Post({
+						author: req.body.author,
+						title: req.body.title,
+						post: req.body.post,
+						published: req.body.publish,
+						createdAt: Date.now(),
+						publishedAt: Date.now(),
+					});
+				} else {
+					post = new Post({
+						author: req.body.author,
+						title: req.body.title,
+						post: req.body.post,
+						published: req.body.publish,
+						createdAt: Date.now(),
+					});
+				}
+
+				const createdPost = await post.save();
+				res.status(201).json({ success: true, createdPost });
+			}
+		} catch (err) {
+			return next(err);
+		}
 	}
-});
+);
 
 router.get('/posts/:postId', async (req, res, next) => {
 	try {
@@ -61,7 +76,7 @@ router.put('/posts/:postId', async (req, res, next) => {
 		const post = await Post.findById(req.params.postId).exec();
 
 		const newPost = new Post({
-			user: post.author,
+			author: post.author,
 			title: req.body.title || post.title,
 			post: req.body.post || post.post,
 			published: req.body.publish || post.published,
@@ -105,21 +120,38 @@ router.get('/posts/:postId/comments', async (req, res, next) => {
 	}
 });
 
-router.post('/posts/:postId/comments', async (req, res, next) => {
-	try {
-		const comment = new Comment({
-			username: req.body.username,
-			comment: req.body.comment,
-			post: req.params.postId,
-			timestamp: Date.now(),
-		});
+router.post(
+	'/posts/:postId/comments',
+	[
+		body('comment', 'Comment must not be empty.')
+			.trim()
+			.isLength({ min: 1 }),
+		body('post', 'Post reference must not be empty.')
+			.trim()
+			.isLength({ min: 1 }),
+	],
+	async (req, res, next) => {
+		try {
+			const errors = validationResult(req);
 
-		await comment.save();
-		res.status(201).json({ success: true, comment });
-	} catch (err) {
-		return next(err);
+			if (!errors.isEmpty()) {
+				res.json({ errors: errors.array() });
+			} else {
+				const comment = new Comment({
+					username: req.body.username,
+					comment: req.body.comment,
+					post: req.params.postId,
+					timestamp: Date.now(),
+				});
+
+				const createdComment = await comment.save();
+				res.status(201).json({ success: true, createdComment });
+			}
+		} catch (err) {
+			return next(err);
+		}
 	}
-});
+);
 
 router.get('/posts/:postId/comments/:commentId', async (req, res, next) => {
 	try {
