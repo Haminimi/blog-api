@@ -1,4 +1,3 @@
-more dependencies
 # Blog API
 ## Description
 A REST API for managing a blog site. [The project](https://www.theodinproject.com/lessons/nodejs-blog-api) is a part of [The Odin Project](https://www.theodinproject.com/dashboard)'s Node course within [The Odin Project](https://www.theodinproject.com/dashboard)'s curriculum. The Odin Project provides a high quality web development education maintained by an open source community.
@@ -26,6 +25,7 @@ Other CRUD operations may be tested using [cURL](https://curl.se/) or [Postman](
 - JWT
 ## Reflection
 A part of the project is building the frontend and connecting with the API. However, the main focus is on getting a REST API up and running. Currently, the project is a standalone API, but I will consider expanding and integrating it with my portfolio website in the future.
+<!-- more dependencies -->
 ## Author
 - [GitHub](https://github.com/Haminimi)
 - [Exercism](https://exercism.org/profiles/Haminimi)
