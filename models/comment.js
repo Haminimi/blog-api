@@ -6,7 +6,7 @@ const CommentSchema = new Schema({
 	username: String,
 	comment: { type: String, required: true },
 	post: { type: Schema.Types.ObjectId, ref: 'Post', required: true },
-	timestamp: { type: Number, default: Date.now, required: true },
+	timestamp: { type: Number, required: true },
 });
 
 module.exports = mongoose.model('Comment', CommentSchema);
