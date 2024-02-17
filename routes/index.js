@@ -122,14 +122,7 @@ router.get('/posts/:postId/comments', async (req, res, next) => {
 
 router.post(
 	'/posts/:postId/comments',
-	[
-		body('comment', 'Comment must not be empty.')
-			.trim()
-			.isLength({ min: 1 }),
-		body('post', 'Post reference must not be empty.')
-			.trim()
-			.isLength({ min: 1 }),
-	],
+	[body('comment', 'Comment must not be empty.').trim().isLength({ min: 1 })],
 	async (req, res, next) => {
 		try {
 			const errors = validationResult(req);
